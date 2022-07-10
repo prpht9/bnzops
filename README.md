@@ -11,7 +11,7 @@ The benefits we focus on are things like:
 
 Our next feature is the inclusion of a community ranking system for deployment strategies. We will include our recommended strategies. But we will also allow our community to publish their own strategies. Then we will allow ranking of the strategies based on whether they are intended for startup, small, medium and enterprise size implementations.
 
-See the [Overview](doc/bnzops_overview) page for more in depth explanation
+See the [Overview](doc/bnzops_overview.md) page for more in depth explanation
 
 # Table of Contents
 
@@ -31,7 +31,7 @@ To start using bnzops you must have a strategy.yml file. This can be created usi
 
 ## Documenation
 
-* [Overview](doc/bnzops_overview)
+* [Overview](doc/bnzops_overview.md)
 
 ## Support
 
