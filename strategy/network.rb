@@ -1,68 +1,63 @@
-require 'highline'
-require 'yaml'
-require_relative '../config/defaults.rb'
-require_relative '../config/questionnaire.rb'
+class BNZOps::Strategy::Network
 
-module BZOps
-end
+  DEFAULTS = {
+    :large_slash_12 => { :net_cidr => 12, :count => 16, :vpc_cidr => 16 },
+    :large_slash_13 => { :net_cidr => 13, :count => 8, :vpc_cidr => 16 },
+    :medium_slash_13 => { :net_cidr => 13, :count => 16, :vpc_cidr => 17 },
+    :medium_slash_14 => { :net_cidr => 14, :count => 8, :vpc_cidr => 17 },
+    :small_slash_14 => { :net_cidr => 14, :count => 16, :vpc_cidr => 18 },
+    :small_slash_15 => { :net_cidr => 15, :count => 8, :vpc_cidr => 18 },
+    :very_small_slash_15 => { :net_cidr => 15, :count => 16, :vpc_cidr => 19 },
+    :very_small_slash_16 => { :net_cidr => 16, :count => 8, :vpc_cidr => 19 }
+  }
 
-class BZOps::Cli
+  CONVENTIONS = {
+    :naming_conventions => {
+      :blue_green_8 => [ :prod0, :prod1, :stg0, :stg1, :shared, :test, :dev, :lab ],
+      :blue_green_16 => [ :prod0, :prod1, :stg0, :stg1, :unallocated_prod_network, :unallocated_prod_network, :unallocated_prod_network, :shared, :uat, :qa, :dev, :unallocated_non_prod_network, :unallocated_non_prod_network, :unallocated_non_prod_network, :unallocated_non_prod_network, :lab ],
+      :full_layout_8 => [ :prod, :dr, :stg, :shared, :uat, :qa, :dev, :lab ],
+      :full_layout_16 => [ :prod, :dr, :stg, :unallocated_prod_network, :unallocated_prod_network, :unallocated_prod_network, :unallocated_prod_network, :shared, :uat, :qa, :dev, :unallocated_non_prod_network, :unallocated_non_prod_network, :unallocated_non_prod_network, :unallocated_non_prod_network, :lab ]
+    }
+  }
+
 
   SUBNET_LENGTH = 256
 
+  BNZOps::Strategy.register(self)
+  include BNZOps::Questionnaire
+
   def initialize()
-    @cli = HighLine.new
-    @config = {}
     @networks = []
+    questionnaire_setup()
   end
 
-  def show_banner()
+  def process()
+    determine_network()
+    determine_vpcs()
+    load_network()
+    save_network()
   end
 
-  def walk_questionnaire()
-    QUESTIONNAIRE.each do |entry|
-      q_key, q = entry
-      next if skip?(entry)
-      @cli.say q[:description]
-      answer = @cli.ask("#{q[:question]}  ", Integer) {|a| a.in = q[:validation] }
-      if q[:answer_type] == :literal
-        @config[q_key] = answer
-      else
-        @config[q_key] = q[:answers][answer - 1]
-      end
-    end
+  def load_content()
+    require_relative 'network_questionnaire'
+    content = QUESTIONNAIRE
   end
 
-  def skip?(entry)
-    q_key, q = entry
-    if q.include? :skip_trigger
-      trigger, v = q[:skip_trigger]
-        if eval(trigger) == v
-          @config[q_key] = q[:skip_answer]
-          return true
-        else
-        end
-      #end
-    else
-      return false
-    end
-  end
-
-  def show_results()
-    puts @config.inspect
-    filename = @cli.ask("Configuration filename?  ") {|a| a.default = "./strategy.yml"}
-    puts "Saving configuration to: #{filename}"
+  def save_network()
+    puts @network.inspect
+    filename = @cli.ask("Network filename?  ") {|a| a.default = "./network.yml"}
+    puts "Saving network to: #{filename}"
     f = File.open(filename, 'w')
     begin
-      f.write(@config.to_yaml)
+      f.write(@network.to_yaml)
       f.close
-      puts "Configuration saved to #{filename}"
+      puts "Network saved to #{filename}"
     rescue StandardError => e
       puts "Error writing #{filename}: #{e.inspect}"
     end
   end
 
-  def load_networks()
+  def load_network()
     c = @config
     c[:ips_per_subnet] = SUBNET_LENGTH / c[:vpc_per_slash_16]
     c[:networks] = []
@@ -92,23 +87,9 @@ class BZOps::Cli
     #end
   end
 
-  def show_networks()
-    puts @config.inspect
-    filename = @cli.ask("Networks filename?  ") {|a| a.default = "./networks.yml"}
-    puts "Saving networks to: #{filename}"
-    f = File.open(filename, 'w')
-    begin
-      f.write(@config.to_yaml)
-      f.close
-      puts "Networks saved to #{filename}"
-    rescue StandardError => e
-      puts "Error writing #{filename}: #{e.inspect}"
-    end
-  end
-
   def calc_vpc_per_slash_16()
     c = @config
-    case c[:net_size]
+    case c[:net_cidr]
     when 12
       c[:vpc_per_slash_16] = 1
       c[:netmask] = 16
@@ -150,12 +131,11 @@ class BZOps::Cli
       end
       c[:octet_end] = c[:octet_start]
     end
-    load_networks()
   end
 
   def calc_vpcs()
     c = @config
-    #case c[:net_size]
+    #case c[:net_cidr]
     #when 12
       #DEFAULTS[:region_order].each do |vpc_name|
       #end
@@ -167,17 +147,12 @@ class BZOps::Cli
     #end
   end
 
-  def build_configuration()
-    determine_network()
-    determine_vpcs()
-  end
-
   def determine_network()
     c = @config
-    c[:net_size] = DEFAULTS[c[:network_size]][:net_size]
-    c[:count] = DEFAULTS[c[:network_size]][:count]
-    c[:vpc_size] = DEFAULTS[c[:network_size]][:vpcc_size]
-    c[:network] = "#{c[:private_network]}.#{c[:octet_start]}.0.0/#{c[:net_size]}"
+    c[:net_cidr] = DEFAULTS[c[:network_cidr]][:net_cidr]
+    c[:count] = DEFAULTS[c[:network_cidr]][:count]
+    c[:vpc_cidr] = DEFAULTS[c[:network_cidr]][:vpcc_cidr]
+    c[:network] = "#{c[:private_network]}.#{c[:octet_start]}.0.0/#{c[:net_cidr]}"
     c[:octet1] = c[:private_network].to_i
     c[:octet2] = c[:octet_start].to_i
     c[:octet3] = 0

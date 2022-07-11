@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require 'highline'
+require_relative '../lib/bnzops'
+
+BNZOps::CLI.execute(STDOUT, ARGV)
