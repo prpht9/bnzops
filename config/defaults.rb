@@ -1,44 +1,44 @@
 
 DEFAULTS = {
   :large_slash_12 => {
-    :net_size => 12,
+    :net_cidr => 12,
     :count => 16,
-    :vpc_size => 16
+    :vpc_cidr => 16
   },
   :large_slash_13 => {
-    :net_size => 13,
+    :net_cidr => 13,
     :count => 8,
-    :vpc_size => 16
+    :vpc_cidr => 16
   },
   :medium_slash_13 => {
-    :net_size => 13,
+    :net_cidr => 13,
     :count => 16,
-    :vpc_size => 17
+    :vpc_cidr => 17
   },
   :medium_slash_14 => {
-    :net_size => 14,
+    :net_cidr => 14,
     :count => 8,
-    :vpc_size => 17
+    :vpc_cidr => 17
   },
   :small_slash_14 => {
-    :net_size => 14,
+    :net_cidr => 14,
     :count => 16,
-    :vpc_size => 18
+    :vpc_cidr => 18
   },
   :small_slash_15 => {
-    :net_size => 15,
+    :net_cidr => 15,
     :count => 8,
-    :vpc_size => 18
+    :vpc_cidr => 18
   },
   :very_small_slash_15 => {
-    :net_size => 15,
+    :net_cidr => 15,
     :count => 16,
-    :vpc_size => 19
+    :vpc_cidr => 19
   },
   :very_small_slash_16 => {
-    :net_size => 16,
+    :net_cidr => 16,
     :count => 8,
-    :vpc_size => 19
+    :vpc_cidr => 19
   },
   :naming_conventions => {
     :blue_green_8 => [
