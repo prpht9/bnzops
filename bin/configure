@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'highline'
-require_relative 'lib/cli'
+require_relative '../lib/cli'
 
 b = BZOps::Cli.new
 b.walk_questionnaire
