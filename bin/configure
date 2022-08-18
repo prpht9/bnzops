@@ -3,9 +3,6 @@
 require 'highline'
 require_relative '../lib/cli'
 
-b = BZOps::Cli.new
-b.walk_questionnaire
-b.show_results
-b.build_configuration
-b.show_networks
+b = BNZOps::Cli.new
+b.start
 
