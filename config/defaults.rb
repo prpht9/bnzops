@@ -40,63 +40,67 @@ DEFAULTS = {
     :count => 8,
     :vpc_size => 19
   },
-  :naming_conventions => {
-    :blue_green_8 => [
-      :prod0,
-      :prod1,
-      :stg0,
-      :stg1,
-      :shared,
-      :test,
-      :dev,
-      :lab
-    ],
-    :blue_green_16 => [
-      :prod0,
-      :prod1,
-      :stg0,
-      :stg1,
-      :unallocated_prod_network,
-      :unallocated_prod_network,
-      :unallocated_prod_network,
-      :shared,
-      :uat,
-      :qa,
-      :dev,
-      :unallocated_non_prod_network,
-      :unallocated_non_prod_network,
-      :unallocated_non_prod_network,
-      :unallocated_non_prod_network,
-      :lab
-    ],
-    :full_layout_8 => [
-      :prod,
-      :dr,
-      :stg,
-      :shared,
-      :uat,
-      :qa,
-      :dev,
-      :lab
-    ],
-    :full_layout_16 => [
-      :prod,
-      :dr,
-      :stg,
-      :unallocated_prod_network,
-      :unallocated_prod_network,
-      :unallocated_prod_network,
-      :unallocated_prod_network,
-      :shared,
-      :uat,
-      :qa,
-      :dev,
-      :unallocated_non_prod_network,
-      :unallocated_non_prod_network,
-      :unallocated_non_prod_network,
-      :unallocated_non_prod_network,
-      :lab
-    ]
-  }
+  :naming_conventions => [
+    [ :blue_green_8, {
+      :name => "Blue Green style with short names and indexes",
+      :size => 8,
+      :tags => [
+        :blue_green,
+        :canary,
+        :single_digit_index,
+        :index_begins_with_0,
+        :prod_50_percent,
+        :non_prod_50_percent,
+        :shared_in_non_prod,
+        :lab
+      ],
+      :names => [
+        :prod0,
+        :prod1,
+        :stg0,
+        :stg1,
+        :shared,
+        :test,
+        :dev,
+        :lab
+      ]
+    }],
+    [ :blue_green_16, {
+      :name => "Blue Green style with short names and indexes",
+      :size => 16,
+      :tags => [
+        :blue_green,
+        :canary,
+        :single_digit_index,
+        :index_begins_with_0,
+        :prod_50_percent,
+        :non_prod_50_percent,
+        :shared_in_prod,
+        :unallocated_nets_in_prod,
+        :unallocated_nets_in_non_prod,
+        :prod_net_acl_zones_1_to_3,
+        :non_prod_net_acl_zones_1_to_3,
+        :lab
+      ],
+      :names => [
+        :prod0,
+        :prod1,
+        :stg0,
+        :stg1,
+        :unallocated_prod_network,
+        :unallocated_prod_network,
+        :unallocated_prod_network,
+        :shared,
+        :uat,
+        :qa,
+        :unallocated_non_prod_network,
+        :unallocated_non_prod_network,
+        :unallocated_non_prod_network,
+        :unallocated_non_prod_network,
+        :dev,
+        :lab
+      ]
+    }]
+  ]
 }
 
