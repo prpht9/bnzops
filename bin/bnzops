@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'highline'
-require_relative '../lib/cli'
+require_relative '../lib/bnzops'
 
 b = BNZOps::Cli.new
 b.start

@@ -1,16 +1,14 @@
 require 'highline'
 require 'yaml'
-require_relative '../config/defaults.rb'
-require_relative '../config/questionnaire.rb'
-
-module BNZOps end
-module BNZOps::Contrib end
-module BNZOps::Contrib::Packages end
+require_relative '../../config/defaults.rb'
+require_relative '../../config/questionnaire.rb'
 
 class BNZOps::Cli
 
   SUBNET_LENGTH = 256
   CONFIG_ARRAYS = [:naming_conventions]
+  
+  @@contrib_path = ENV['CONTRIB_PATH'] ||= '../../contrib/'
 
   def initialize()
     @cli = HighLine.new
@@ -42,7 +40,7 @@ class BNZOps::Cli
 
   def load_contrib_packages()
     packages = []
-    contrib_path = File.join(File.dirname(__FILE__), '../contrib/')
+    contrib_path = File.join(File.dirname(__FILE__), @@contrib_path )
     puts "Contrib Path: #{contrib_path}"
     contrib_package_paths = Dir.children(contrib_path)
     contrib_package_paths.each do |d|
