@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+require_relative '../lib/bnzops'
+
+b = BNZOps::Cli.new
+b.start
+
