@@ -1,7 +1,8 @@
 #!/usr/bin/env ruby
 
+require 'optparse'
 require_relative '../lib/bnzops'
+require_relative '../lib/bnzops/cli.rb'
 
-b = BNZOps::Cli.new
-b.start
-
+cli = BNZOps::CLI.new
+cli.start(ARGV)
