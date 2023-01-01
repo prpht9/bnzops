@@ -13,14 +13,15 @@ class BNZOps::Action::Configure
   def initialize(*args, **conf)
     # these are the standard Highline.new options
     # https://www.rubydoc.info/github/JEG2/highline/master/HighLine
-    @highline_opts = []
-    if conf.key?(:highline)
-      @highline_opts << conf[:highline][:input] ||= $stdin
-      @highline_opts << conf[:highline][:output] ||= $stdout
-    end
+    #@highline_opts = []
+    #if conf.key?(:highline)
+    #  @highline_opts << conf[:highline][:input] ||= $stdin
+    #  @highline_opts << conf[:highline][:output] ||= $stdout
+    #end
     # end standard Highline options
 
-    @cli = HighLine.new(@highline_opts)
+    #@cli = HighLine.new(@highline_opts)
+    @cli = HighLine.new
     @config = {}
     @defaults = DEFAULTS
     @networks = []
