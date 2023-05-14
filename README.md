@@ -29,6 +29,28 @@ Just clone the repo to your local workstation and work from the root dir of the 
 
 To start using bnzops you must have a strategy.yml file. This can be created using our `bin/configure` script or you can adjust an existing file manually. The script will prompt you to answer some questions and then will write a file locally for use by bnzops.
 
+### Step One: Build Your Strategy
+
+The idea here is to build your selected strategy into usable configuration files.  These then get used as input for the terraform for building out your environment.
+
+### Step Two: Configure Terragrunt
+
+Push your configurations to Terragrunt.  A sample terragrunt project with a usable layout for injecting the configurations is available in the example directory.
+
+### Step Three: Configure Secrets
+
+Configure your secret strategy.  This allows the system to authenticate and properly execute the workflows. Default secret strategy uses gnu pass for workstation use and vault from hashicorp for shared and system level secrets.
+
+### Step Four: Start Initial Dependencies
+
+* Network
+* Custom Roles
+* IAM Service Accounts
+* Bastion Hosts
+* Network Appliances
+* k8s admin cluster
+* k8s app cluster
+
 ## Documenation
 
 * [Overview](doc/bnzops_overview.md)
