@@ -1,4 +1,4 @@
-QUESTIONNAIRE = [
+NETWORK_QUESTIONNAIRE = [
 
   [ :region_strategy, {
     :description => 
