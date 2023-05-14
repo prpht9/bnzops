@@ -1,2 +1,3 @@
 networks.yml
-strategy.yml
+groups.yml
+*strategy.yml
