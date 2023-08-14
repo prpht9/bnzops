@@ -7,6 +7,28 @@ class BNZOps::Action::ConfigureNetwork
 
   SUBNET_LENGTH = 256
   CONFIG_ARRAYS = [:naming_conventions]
+  SUBNET_NETMASK_HASH = {
+    12 => {
+      8 => 15,
+      16 => 16
+    },
+    13 => {
+      8 => 16,
+      16 => 17
+    },
+    14 => {
+      8 => 17,
+      16 => 18
+    },
+    15 => {
+      8 => 18,
+      16 => 19
+    },
+    16 => {
+      8 => 19,
+      16 => 20
+    }
+  }
   
   @@contrib_path = ENV['CONTRIB_PATH'] ||= '../../../contrib/'
 
@@ -128,7 +150,6 @@ class BNZOps::Action::ConfigureNetwork
 
   def load_networks()
     c = @config
-    c[:ips_per_subnet] = SUBNET_LENGTH / c[:vpc_per_slash_16]
     c[:networks] = []
     c[:count].times do
       c[:vpc_per_slash_16].times do
@@ -170,106 +191,24 @@ class BNZOps::Action::ConfigureNetwork
     end
   end
 
-  def calc_vpc_per_slash_16()
-    c = @config
-    case c[:net_size]
-    when 12
-      c[:vpc_per_slash_16] = 1
-      c[:netmask] = 16
-      c[:octet_end] = c[:octet_start] + 15
-    when 13
-      if c[:count] == 8
-        c[:vpc_per_slash_16] = 1
-        c[:netmask] = 16
-      else
-        c[:vpc_per_slash_16] = 2
-        c[:netmask] = 17
-      end
-      c[:octet_end] = c[:octet_start] + 7
-    when 14
-      if c[:count] == 8
-        c[:vpc_per_slash_16] = 2
-        c[:netmask] = 17
-      else
-        c[:vpc_per_slash_16] = 4
-        c[:netmask] = 18
-      end
-      c[:octet_end] = c[:octet_start] + 3
-    when 15
-      if c[:count] == 8
-        c[:vpc_per_slash_16] = 4
-        c[:netmask] = 18
-      else
-        c[:vpc_per_slash_16] = 8
-        c[:netmask] = 19
-      end
-      c[:octet_end] = c[:octet_start] + 1
-    when 16
-      if c[:count] == 8
-        c[:vpc_per_slash_16] = 8
-        c[:netmask] = 19
-      else
-        c[:vpc_per_slash_16] = 16
-        c[:netmask] = 20
-      end
-      c[:octet_end] = c[:octet_start]
-    end
-    load_networks()
-  end
-
-  def calc_vpcs()
-    c = @config
-    #case c[:net_size]
-    #when 12
-      #DEFAULTS[:region_order].each do |vpc_name|
-      #end
-      puts "Octet1: #{c[:octet1]}"
-      puts "Octet2: #{c[:octet2]}"
-      puts "Octet3: #{c[:octet3]}"
-      puts "Octet4: #{c[:octet4]}"
-      puts "Count: #{c[:count]}"
-    #end
-  end
-
   def build_configuration()
-    determine_network()
-    determine_vpcs()
-    calc_subnets()
+    @network = determine_network()
   end
 
   def determine_network()
     c = @config
-    c[:net_size] = @defaults[c[:network_size]][:net_size]
-    c[:count] = @defaults[c[:network_size]][:count]
-    c[:vpc_size] = @defaults[c[:network_size]][:vpcc_size]
-    c[:network] = "#{c[:private_network]}.#{c[:octet_start]}.0.0/#{c[:net_size]}"
-    c[:octet1] = c[:private_network].to_i
-    c[:octet2] = c[:octet_start].to_i
-    c[:octet3] = 0
-    c[:octet4] = 0
-    puts "Network: #{c[:network]}"
-  end
-
-  def determine_vpcs()
-    c = @config
-    calc_vpc_per_slash_16()
-    puts "End Octet: #{c[:octet_end]}"
-    puts "VPC per /16: #{c[:vpc_per_slash_16]}"
-    calc_vpcs()
-  end
-
-  def calc_subnets()
-    c = @config
-    network = IPAddr.new(c[:network])
-    c[:tl_prod] = 
-    c[:net_size] = @defaults[c[:network_size]][:net_size]
-    c[:count] = @defaults[c[:network_size]][:count]
-    c[:vpc_size] = @defaults[c[:network_size]][:vpcc_size]
-    c[:network] = "#{c[:private_network]}.#{c[:octet_start]}.0.0/#{c[:net_size]}"
-    c[:octet1] = c[:private_network].to_i
-    c[:octet2] = c[:octet_start].to_i
-    c[:octet3] = 0
-    c[:octet4] = 0
+    puts "Network Type: #{[c[:network_type]]}"
+    c[:net_info] = @defaults[c[:network_type]]
+    puts "Network Info #{c[:net_info]}"
+    c[:count] = @defaults[c[:network_type]][:count]
+    puts "Network count #{c[:count]}"
+    c[:net_size] = @defaults[c[:network_type]][:net_size]
+    puts "Network size #{c[:net_size]}"
+    c[:vpc_size] = @defaults[c[:network_type]][:vpc_size]
+    puts "VPC size #{c[:vpc_size]}"
+    c[:network] = BNZOps::Network.new("#{c[:private_network]}.#{c[:octet_start]}.0.0/#{c[:net_size]}")
+    c[:network].subnet_netmask = SUBNET_NETMASK_HASH[c[:net_size]][c[:count]]
+    c[:subnets] = c[:network].subnets
     puts "Network: #{c[:network]}"
   end
 
