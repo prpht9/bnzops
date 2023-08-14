@@ -96,6 +96,10 @@ class BNZOps::Network
     return "#{@octets.join('.')}/#{@netmask}"
   end
 
+  def tld
+    return cidr
+  end
+
   def to_s
     return cidr
   end

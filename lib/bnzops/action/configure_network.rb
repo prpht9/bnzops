@@ -197,17 +197,27 @@ class BNZOps::Action::ConfigureNetwork
 
   def determine_network()
     c = @config
-    puts "Network Type: #{[c[:network_type]]}"
     c[:net_info] = @defaults[c[:network_type]]
-    puts "Network Info #{c[:net_info]}"
     c[:count] = @defaults[c[:network_type]][:count]
-    puts "Network count #{c[:count]}"
     c[:net_size] = @defaults[c[:network_type]][:net_size]
-    puts "Network size #{c[:net_size]}"
     c[:vpc_size] = @defaults[c[:network_type]][:vpc_size]
-    puts "VPC size #{c[:vpc_size]}"
     c[:network] = BNZOps::Network.new("#{c[:private_network]}.#{c[:octet_start]}.0.0/#{c[:net_size]}")
     c[:network].subnet_netmask = SUBNET_NETMASK_HASH[c[:net_size]][c[:count]]
+    tld = BNZOps::Network.new(c[:network].cidr)
+    tld.subnet_netmask = tld.netmask + 1
+    c[:tld] = tld.cidr
+    c[:subdomains] = []
+    c[:segments] = []
+    tld.subnets.each do |sd_cidr|
+       sd = BNZOps::Network.new(sd_cidr)
+       sd.subnet_netmask = sd.netmask + 1
+       c[:subdomains] << sd.cidr
+       sd.subnets.each do |seg_cidr|
+         seg = BNZOps::Network.new(seg_cidr)
+         seg.subnet_netmask = seg.netmask + 1
+         c[:segments] << seg.cidr
+       end
+    end
     c[:subnets] = c[:network].subnets
     puts "Network: #{c[:network]}"
   end
