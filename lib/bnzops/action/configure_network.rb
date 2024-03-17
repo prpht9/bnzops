@@ -6,7 +6,8 @@ require_relative '../../../config/network_questionnaire.rb'
 class BNZOps::Action::ConfigureNetwork
 
   SUBNET_LENGTH = 256
-  CONFIG_ARRAYS = [:naming_conventions]
+  #CONFIG_ARRAYS = [:naming_conventions]
+  CONFIG_ARRAYS = []
   SUBNET_NETMASK_HASH = {
     12 => {
       8 => 15,
@@ -51,24 +52,11 @@ class BNZOps::Action::ConfigureNetwork
   end
 
   def start()
-    load_contrib_packages
+    #load_contrib_packages
     walk_questionnaire
     show_results
     build_configuration
     show_networks
-  end
-
-  def join_contrib_config(p)
-    contrib_config = eval("BNZOps::Contrib::Packages::#{p.upcase}")
-    contrib_config.keys.each do |k|
-      if [ CONFIG_ARRAYS.include?(k) ]
-        contrib_config[k].each do |x|
-          @defaults[k] << x
-        end
-      else
-        @defaults[k].merge!(contrib_config[k])
-      end
-    end
   end
 
   def load_contrib_packages()
@@ -105,10 +93,23 @@ class BNZOps::Action::ConfigureNetwork
     puts "Defaults: #{@defaults}"
   end
 
+  def join_contrib_config(p)
+    contrib_config = eval("BNZOps::Contrib::Packages::#{p.upcase}")
+    contrib_config.keys.each do |k|
+      if [ CONFIG_ARRAYS.include?(k) ]
+        contrib_config[k].each do |x|
+          @defaults[k] << x
+        end
+      else
+        @defaults[k].merge!(contrib_config[k])
+      end
+    end
+  end
+
   def walk_questionnaire()
     @questionnaire.each do |entry|
       q_key, q = entry
-      next if skip?(entry)
+      next if _skip?(entry)
       @cli.say q[:description]
       answer = @cli.ask("#{q[:question]}  ", Integer) {|a| a.in = q[:validation] }
       if q[:answer_type] == :literal
@@ -116,21 +117,6 @@ class BNZOps::Action::ConfigureNetwork
       else
         @config[q_key] = q[:answers][answer - 1]
       end
-    end
-  end
-
-  def skip?(entry)
-    q_key, q = entry
-    if q.include? :skip_trigger
-      trigger, v = q[:skip_trigger]
-        if eval(trigger) == v
-          @config[q_key] = q[:skip_answer]
-          return true
-        else
-        end
-      #end
-    else
-      return false
     end
   end
 
@@ -148,33 +134,9 @@ class BNZOps::Action::ConfigureNetwork
     end
   end
 
-  def load_networks()
-    c = @config
-    c[:networks] = []
-    c[:count].times do
-      c[:vpc_per_slash_16].times do
-        c[:networks] << "#{c[:octet1]}.#{c[:octet2]}.#{c[:octet3]}.#{c[:octet4]}"
-        c[:octet3] = c[:octet3] + c[:ips_per_subnet]
-      end
-      c[:octet2] = c[:octet2] + 1
-      c[:octet3] = 0
-    end
-    #when 1
-    #  while @networks.flatten.length < c[:count]
-    #    nets = []
-    #    while nets.length < c[:vpc_per_slash_16]
-    #      
-    #      net = "#{c[:octet1]}.#{c[:octet2] + @networks.length}.#{c[:octet3]}.#{c[:octet4]}/#{c[:netmask]}"
-    #      nets << net
-    #    end
-    #    @networks << nets
-    #  end
-    #when 2
-    #  while @networks.length < c[:count]
-    #    net = "#{c[:octet1]}.#{c[:octet2] + @networks.length}.#{c[:octet3]}.#{c[:octet4]}/#{c[:netmask]}"
-    #    @networks << net
-    #  end
-    #end
+  def build_configuration()
+    determine_network()
+    map_network()
   end
 
   def show_networks()
@@ -189,10 +151,6 @@ class BNZOps::Action::ConfigureNetwork
     rescue StandardError => e
       puts "Error writing #{filename}: #{e.inspect}"
     end
-  end
-
-  def build_configuration()
-    @network = determine_network()
   end
 
   def determine_network()
@@ -218,8 +176,90 @@ class BNZOps::Action::ConfigureNetwork
          c[:segments] << seg.cidr
        end
     end
-    c[:subnets] = c[:network].subnets
+    c[:environments] = c[:network].subnets
     puts "Network: #{c[:network]}"
+  end
+
+  def map_network()
+    c = @config
+    c[:networks] = {
+      subdomains: {},
+      segments: {},
+      spokes: {},
+      hub: {}
+    }
+    nets = c[:networks]
+    names = @defaults[:naming_conventions][:blue_green_8][:names]
+    nets["tld"] = c[:tld]
+    pseg, dseg = c[:segments].each_slice(2).to_a
+    seg_a = [
+      [:subdomains, c[:subdomains]],
+      [:prod_seg, pseg],
+      [:dev_seg, dseg]
+    ]
+    seg_a.each do |a|
+      _assign_seg_values(c, nets, names, a[0], a[1])
+    end
+    penv, senv, tenv, denv = c[:environments].each_slice(2).to_a
+    env_a = [
+      [:prod_envs, penv],
+      [:shared_envs, senv],
+      [:test_envs, tenv],
+      [:dev_envs, denv]
+    ]
+    env_a.each do |a|
+      _assign_env_values(c, nets, names, a[0], a[1])
+    end
+  end
+
+  private
+
+  def _assign_seg_values(c, nets, names, subj, obj)
+    (0..1).to_a.each do |i|
+      nets[:segments][names[subj][i]] = obj[i]
+    end
+  end
+
+  def _assign_env_values(c, nets, names, subj, obj)
+    hub = @defaults[:naming_conventions][:blue_green_8][:hub]
+    (0..1).to_a.each do |i|
+      peers = []
+      role = ''
+      grp = ''
+      if names[subj][i] == "unallocated"
+        next
+      elsif names[subj][i] == hub
+        peers.concat(@defaults[:naming_conventions][:blue_green_8][:spokes])
+        role = "hub"
+        grp = :hub
+      else
+        peers.concat([hub])
+        role = "spoke"
+        grp = :spokes
+      end
+      n = names[subj][i]
+      nets[grp][n] = {
+        network: n,
+        cidr: obj[i],
+        network_role: role,
+        peers: peers
+      }
+    end
+  end
+
+  def _skip?(entry)
+    q_key, q = entry
+    if q.include? :skip_trigger
+      trigger, v = q[:skip_trigger]
+        if eval(trigger) == v
+          @config[q_key] = q[:skip_answer]
+          return true
+        else
+        end
+      #end
+    else
+      return false
+    end
   end
 
 end

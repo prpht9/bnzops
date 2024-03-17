@@ -1,7 +1,7 @@
 
 BNZOps::Contrib::Packages::FULL_LAYOUT_NAMING_CONVENTIONS = {
-  :naming_conventions => [
-    [ :full_layout_8, {
+  :naming_conventions => {
+    :full_layout_8 => {
       :name => "Full Layout style with long names",
       :size => 8,
       :tags => [
@@ -17,15 +17,15 @@ BNZOps::Contrib::Packages::FULL_LAYOUT_NAMING_CONVENTIONS = {
       :names => [
         :production,
         :dr,
-        :staging,
         :shared,
-        :uat,
+        :hub,
+        :staging,
         :qa,
         :dev,
         :lab
       ]
-    }],
-    [ :full_layout_16, {
+    },
+    :full_layout_16 => {
       :name => "Full Layout style with long names",
       :size => 16,
       :tags => [
@@ -56,7 +56,7 @@ BNZOps::Contrib::Packages::FULL_LAYOUT_NAMING_CONVENTIONS = {
         :dev,
         :lab
       ]
-    }]
-  ]
+    }
+  }
 }
 

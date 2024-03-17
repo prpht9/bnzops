@@ -40,8 +40,8 @@ DEFAULTS = {
     :count => 8,
     :vpc_size => 19
   },
-  :naming_conventions => [
-    [ :blue_green_8, {
+  :naming_conventions => {
+    :blue_green_8 => {
       :name => "Blue Green style with short names and indexes",
       :size => 8,
       :tags => [
@@ -54,18 +54,47 @@ DEFAULTS = {
         :shared_in_non_prod,
         :lab
       ],
-      :names => [
-        :prod0,
-        :prod1,
-        :stg0,
-        :stg1,
-        :shared,
-        :test,
-        :dev,
-        :lab
-      ]
-    }],
-    [ :blue_green_16, {
+      :names => {
+        subdomains: [
+          "prod-net",
+          "dev-net"
+        ],
+        prod_seg: [
+          "prod-seg",
+          "shared-seg"
+        ],
+        dev_seg: [
+          "test-seg",
+          "dev-seg"
+        ],
+        prod_envs: [
+          "prod",
+          "dr"
+        ],
+        shared_envs: [
+          "shared",
+          "hub"
+        ],
+        test_envs: [
+          "staging",
+          "dev"
+        ],
+        dev_envs: [
+          "unallocated",
+          "lab"
+        ]
+      },
+      :spokes => [
+        "prod",
+        "dr",
+        "shared",
+        "staging",
+        "dev",
+        "lab",
+      ],
+      :hub => "hub"
+    },
+    :blue_green_16 => {
       :name => "Blue Green style with short names and indexes",
       :size => 16,
       :tags => [
@@ -100,8 +129,8 @@ DEFAULTS = {
         :dev,
         :lab
       ]
-    }]
-  ],
+    }
+  },
   :group_strategy => {
     :team_small => {
       :name => "Small Team Group Naming Strategy",
