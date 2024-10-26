@@ -6,7 +6,9 @@ require_relative '../../../config/group_questionnaire.rb'
 class BNZOps::Action::ConfigureGroups < BNZOps::Action::Questionnaire
 
   CONFIG_ARRAYS = [:naming_conventions]
+  DEFAULT_PACKAGES = {}
 
+  @@packages = DEFAULT_PACKAGES
   @@contrib_path = ENV['CONTRIB_PATH'] ||= '../../../contrib/'
 
   def initialize(*args, **conf)
@@ -22,7 +24,6 @@ class BNZOps::Action::ConfigureGroups < BNZOps::Action::Questionnaire
     #@cli = HighLine.new(@highline_opts)
     @cli = HighLine.new
     @config = {}
-    @defaults = DEFAULTS
     @networks = []
     @questionnaire = GROUP_QUESTIONNAIRE
   end
@@ -40,10 +41,10 @@ class BNZOps::Action::ConfigureGroups < BNZOps::Action::Questionnaire
     contrib_config.keys.each do |k|
       if [ CONFIG_ARRAYS.include?(k) ]
         contrib_config[k].each do |x|
-          @defaults[k] << x
+          @@packages[k] = x
         end
       else
-        @defaults[k].merge!(contrib_config[k])
+        @@packages[k].merge!(contrib_config[k])
       end
     end
   end
@@ -79,7 +80,7 @@ class BNZOps::Action::ConfigureGroups < BNZOps::Action::Questionnaire
       end
       join_contrib_config(package)
     end
-    puts "Defaults: #{@defaults}"
+    puts "Packages: #{@@packages}"
   end
 
   def show_results()
