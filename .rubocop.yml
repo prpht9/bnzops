@@ -1,0 +1,82 @@
+require:
+  - rubocop-performance
+
+Style/Lambda:
+  EnforcedStyle: literal
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Layout/LineLength:
+  Max: 120
+  AllowURI: true
+
+Style/ClassAndModuleChildren:
+  EnforcedStyle: compact
+
+Style/GlobalVars:
+  AllowedVariables:
+    - "$rails_rake_task"
+
+Style/PercentLiteralDelimiters:
+  PreferredDelimiters:
+    "%w": "()"
+    "%W": "()"
+    "%i": "()"
+    "%I": "()"
+
+Style/FormatStringToken:
+  EnforcedStyle: template
+
+Rails/Blank:
+  UnlessPresent: false
+
+Rails/HttpStatus:
+  EnforcedStyle: numeric
+
+Rails/UnknownEnv:
+  Environments:
+    - production
+    - staging
+    - development
+    - test
+
+Naming/PredicateName:
+  ForbiddenPrefixes:
+    - is_
+
+Rails/WhereNot:
+  Enabled: true
+
+AllCops:
+  NewCops: enable
+
+# Disabled cops
+Style/Documentation:
+  Enabled: false
+
+RSpec/NestedGroups:
+  Enabled: false
+
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+
+# Custom project rules
+
+Metrics/AbcSize:
+  Exclude:
+
+Metrics/ClassLength:
+  Exclude:
+
+Metrics/MethodLength:
+  Exclude:
+
+Metrics/PerceivedComplexity:
+  Exclude:
+
+Metrics/BlockLength:
+  Exclude:
+
+Metrics/CyclomaticComplexity:
+  Exclude:

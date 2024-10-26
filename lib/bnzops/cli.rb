@@ -11,7 +11,14 @@ class BNZOps::CLI
     options = {}
     parser = nil 
     OptionParser.new do |opts|
-      opts.banner = "Usage: binzops [options] [action]"
+      opts.banner = 
+"Usage: binzops [options] [action]
+
+  Actions:
+    configure_network
+    configure_groups
+
+"
     
       opts.on("--debug", "Enable Ruby Debug") do
         options[:debug] = true
@@ -34,9 +41,13 @@ class BNZOps::CLI
     action = args.shift
     
     case action
-    when /configure/
-      b = BNZOps::Action::Configure.new(@conf)
+    when /configure_network/
+      b = BNZOps::Action::ConfigureNetwork.new(@conf)
       b.start
+    when /configure_groups/
+      b = BNZOps::Action::ConfigureGroups.new(@conf)
+      b.start
+    when /help/
     when /help/
       puts parser
     else

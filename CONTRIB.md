@@ -1,7 +1,7 @@
 
-# Bias Near Zero Ops
+# BNZOps Contrib Resources
 
-bnzops is a project intended to help teams deploy infrastructure and services in the cloud and on premise with as near to zero ops as we can get. The main concept is to make a few best practice strategies available for deployment to prevent anti-patterns and facilitate slight adjustment of the configurations to meet the unforseen needs of the consumers. We accomplish this by intentionally having bias towards a few specific solutions which facilitate the growth from small startup to enterprise solutions without having to change any of your initial ifrastructure design. Starting with a small deployment which already complies with the enterprise design makes it so you never have to redesign as you grow. This saves you from having to do re-work and re-design when all you want to do is scale. By "scale", we don't mean instance groups going from 2 to 10 instances across more availability zones. We don't mean changing database instance or volume sizes for more capacity.
+This directory contains the components necessary to build your own fully functional solution bor a BNZOps implementation.  Each directory here should hold examples of sammple strategies you can use based on your needs.  Official strategies will be prefixed with bnz.
 
 The benefits we focus on are things like:
 
@@ -15,13 +15,13 @@ See the [Overview](doc/bnzops_overview.md) page for more in depth explanation
 
 # Table of Contents
 
-1. [Install](#install)
+1. [Terraform](#terraform)
 2. [Usage](#usage)
 3. [Documentation](#documentation)
 4. [Support](#support)
 5. [Contributing](#contributing)
 
-## Install
+## Terraform
 
 Just clone the repo to your local workstation and work from the root dir of the project. This will change down the road.
 

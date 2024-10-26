@@ -1,4 +1,4 @@
-QUESTIONNAIRE = [
+NETWORK_QUESTIONNAIRE = [
 
   [ :region_strategy, {
     :description => 
@@ -94,7 +94,7 @@ QUESTIONNAIRE = [
     :question => "Private Network?"
   }],
 
-  [ :network_size, {
+  [ :network_type, {
     :description => 
 ' Network Size:
 1) Large Network with open network space 255.255.0.0/12 (Recommended)
@@ -138,6 +138,7 @@ QUESTIONNAIRE = [
   7 Networks in use
   1 Networks available for growth
   ',
+    #:answers => [ 16, 8, 16, 8, 16, 8, 16, 8 ],
     :answers => [ :large_slash_12, :large_slash_13, :medium_slash_13, :medium_slash_14, :small_slash_14, :small_slash_15, :very_small_slash_15, :very_small_slash_16 ],
     :answer_type => :default,
     :validation => 1..8,
